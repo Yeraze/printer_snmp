@@ -42,10 +42,15 @@ def cast(value):
                 pass
     return value
 
-snmp_PrinterName = '1.3.6.1.2.1.25.3.2.1.3.1'
-snmp_PagesPrinted = '1.3.6.1.2.1.43.10.2.1.4.1.1'
+# List of OID's to query
+snmp_PrinterName = '1.3.6.1.2.1.25.3.2.1.3.1'  			# Pretty name for the printer
+snmp_PagesPrinted = '1.3.6.1.2.1.43.10.2.1.4.1.1'		# Entry for number of pages printed
+
+# 	Fields for names of each of the 4 cartridges
 snmp_ColorNames = ['1.3.6.1.2.1.43.11.1.1.6.1.1','1.3.6.1.2.1.43.11.1.1.6.1.2','1.3.6.1.2.1.43.11.1.1.6.1.3','1.3.6.1.2.1.43.11.1.1.6.1.4']
+# 	Fields for Percentage ink remaining of each of the 4 cartridges
 snmp_ColorValue = ['1.3.6.1.2.1.43.11.1.1.9.1.1','1.3.6.1.2.1.43.11.1.1.9.1.2','1.3.6.1.2.1.43.11.1.1.9.1.3','1.3.6.1.2.1.43.11.1.1.9.1.4']
+# 	Ordered list of color names to be used for the progress bars
 snmp_Colors     = ['black', 'cyan', 'magenta', 'yellow']
 oids = list()
 oids.append(snmp_PrinterName)
@@ -53,9 +58,13 @@ oids.append(snmp_PagesPrinted)
 oids.extend(snmp_ColorNames)
 oids.extend(snmp_ColorValue)
 
+# IP's of the printers to query
 for ip in ['192.168.4.55', '192.168.4.77']:
+	# For SNMP v2c, enter the community here
 	results = get(ip, oids, hlapi.CommunityData('VJhT6t3wTGPHY4J2'))
-	print("<div style=\"padding: 1em\">")
+
+	# Contain each printer result in a Div, class is "printer" for styling
+	print("<div class=\"printer\" style=\"padding: 1em\">")
 	print("<b style=\"font-size:110%%\"><a href=\"http://%s/\">%s</a></b><br/>" % (ip, results[snmp_PrinterName]))
 	print("<div style=\"padding-left:2em\">Pages Printed: %s</div>" % results[snmp_PagesPrinted])
 	for (name, value, color) in zip(snmp_ColorNames, snmp_ColorValue, snmp_Colors):
