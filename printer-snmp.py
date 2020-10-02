@@ -69,6 +69,10 @@ for ip in ['192.168.4.55', '192.168.4.77']:
 	print("<div style=\"padding-left:2em\">Pages Printed: %s</div>" % results[snmp_PagesPrinted])
 	for (name, value, color) in zip(snmp_ColorNames, snmp_ColorValue, snmp_Colors):
 		print("<div style=\"width:100px;height:1.1em;border:1px black solid; float:left\">")
-		print("<div style=\"width:%s%% ; background-color: %s \">%s</div>" % (results[value], color, results[value]))
+		print("<div style=\"width:%s%% ;height:100%%; background-color: %s; float:left\">" % (results[value], color))
+		if (int(results[value]) < 50):
+			print("</div> %s%%" % results[value])
+		else:
+			print(" %s%%</div>" % results[value])
 		print("</div>")
 	print("</div>")
