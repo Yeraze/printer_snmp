@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from datetime import datetime
 from pysnmp import hlapi
 def get(target, oids, credentials, port=161, engine=hlapi.SnmpEngine(), context=hlapi.ContextData()):
     handler = hlapi.getCmd(
@@ -43,14 +44,14 @@ def cast(value):
     return value
 
 # List of OID's to query
-snmp_PrinterName = '1.3.6.1.2.1.25.3.2.1.3.1'  			# Pretty name for the printer
-snmp_PagesPrinted = '1.3.6.1.2.1.43.10.2.1.4.1.1'		# Entry for number of pages printed
+snmp_PrinterName = '1.3.6.1.2.1.25.3.2.1.3.1'           # Pretty name for the printer
+snmp_PagesPrinted = '1.3.6.1.2.1.43.10.2.1.4.1.1'       # Entry for number of pages printed
 
-# 	Fields for names of each of the 4 cartridges
+#   Fields for names of each of the 4 cartridges
 snmp_ColorNames = ['1.3.6.1.2.1.43.11.1.1.6.1.1','1.3.6.1.2.1.43.11.1.1.6.1.2','1.3.6.1.2.1.43.11.1.1.6.1.3','1.3.6.1.2.1.43.11.1.1.6.1.4']
-# 	Fields for Percentage ink remaining of each of the 4 cartridges
+#   Fields for Percentage ink remaining of each of the 4 cartridges
 snmp_ColorValue = ['1.3.6.1.2.1.43.11.1.1.9.1.1','1.3.6.1.2.1.43.11.1.1.9.1.2','1.3.6.1.2.1.43.11.1.1.9.1.3','1.3.6.1.2.1.43.11.1.1.9.1.4']
-# 	Ordered list of color names to be used for the progress bars
+#   Ordered list of color names to be used for the progress bars
 snmp_Colors     = ['black', 'cyan', 'magenta', 'yellow']
 oids = list()
 oids.append(snmp_PrinterName)
@@ -67,22 +68,22 @@ cReplaced['yellow']  = [   0, '2021-01-30']
 
 # IP's of the printers to query
 for ip in ['192.168.4.77']:
-	# For SNMP v2c, enter the community here
-	results = get(ip, oids, hlapi.CommunityData('VJhT6t3wTGPHY4J2'))
+    # For SNMP v2c, enter the community here
+    results = get(ip, oids, hlapi.CommunityData('VJhT6t3wTGPHY4J2'))
 
-	# Contain each printer result in a Div, class is "printer" for styling
-	print("<div class=\"printer\" style=\"padding: 1em\">")
-	print("<b style=\"font-size:110%%\"><a href=\"http://%s/\">%s</a></b><br/>" % (ip, results[snmp_PrinterName]))
-	print("<div style=\"padding-left:2em\">Pages Printed: %s</div>" % results[snmp_PagesPrinted])
-	for (name, value, color) in zip(snmp_ColorNames, snmp_ColorValue, snmp_Colors):
-		print("<div style=\"width:100px;height:1.1em;border:1px black solid; float:left\">")
-		print("<div style=\"width:%s%% ;height:100%%; background-color: %s; float:left\">" % (results[value], color))
-		if (int(results[value]) < 50):
-			print("</div> %s%%" % results[value])
-		else:
-			print(" %s%%</div>" % results[value])
-		print("</div>")
-	print("</div>")
+    # Contain each printer result in a Div, class is "printer" for styling
+    print("<div class=\"printer\" style=\"padding: 1em\">")
+    print("<b style=\"font-size:110%%\"><a href=\"http://%s/\">%s</a></b><br/>" % (ip, results[snmp_PrinterName]))
+    print("<div style=\"padding-left:2em\">Pages Printed: %s</div>" % results[snmp_PagesPrinted])
+    for (name, value, color) in zip(snmp_ColorNames, snmp_ColorValue, snmp_Colors):
+        print("<div style=\"width:100px;height:1.1em;border:1px black solid; float:left\">")
+        print("<div style=\"width:%s%% ;height:100%%; background-color: %s; float:left\">" % (results[value], color))
+        if (int(results[value]) < 50):
+            print("</div> %s%%" % results[value])
+        else:
+            print(" %s%%</div>" % results[value])
+        print("</div>")
+    print("</div>")
 
 print("""
         <br>
@@ -92,6 +93,10 @@ print("""
 """)
 
 for color in snmp_Colors:
-    print("""<tr><td><span style="background-color: %s; padding-right:3em">&nbsp;</span> %s  </td><td>%s</td><td>%s</td></tr>""" % (color, color, cReplaced[color][0], cReplaced[color][1]))
+    print("""<tr><td><span style="background-color: %s; padding-right:3em">&nbsp;</span> %s  </td>""" % (color, color.title()))
+    print("""<td>%s (%s)</td>""" % (cReplaced[color][0], results[snmp_PagesPrinted] - cReplaced[color][0]))
+    d = datetime.strptime(cReplaced[color][1], "%Y-%m-%d")
+    
+    print("""<td>%s (%d days)</td></tr>""" % (cReplaced[color][1], (datetime.now() - d).days))
 
 print("</table>")
