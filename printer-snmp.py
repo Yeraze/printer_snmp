@@ -58,8 +58,15 @@ oids.append(snmp_PagesPrinted)
 oids.extend(snmp_ColorNames)
 oids.extend(snmp_ColorValue)
 
+cReplaced = dict()
+cReplaced['black']   = [4346, '2021-06-15']
+cReplaced['cyan']    = [4746, '2021-09-27']
+cReplaced['magenta'] = [4746, '2021-09-27']
+cReplaced['yellow']  = [   0, '2021-01-30']
+
+
 # IP's of the printers to query
-for ip in ['192.168.4.55', '192.168.4.77']:
+for ip in ['192.168.4.77']:
 	# For SNMP v2c, enter the community here
 	results = get(ip, oids, hlapi.CommunityData('VJhT6t3wTGPHY4J2'))
 
@@ -76,3 +83,15 @@ for ip in ['192.168.4.55', '192.168.4.77']:
 			print(" %s%%</div>" % results[value])
 		print("</div>")
 	print("</div>")
+
+print("""
+        <br>
+        <b>Toner Replacements:</b>
+        <table border="1" style="font-size: 80%">
+        <tr><th style="width:20em">Color</th><th style="width:20em">Page Count</th><th style="width:20em">Date</th></tr>
+""")
+
+for color in snmp_Colors:
+    print("""<tr><td><span style="background-color: %s; padding-right:3em">&nbsp;</span> %s  </td><td>%s</td><td>%s</td></tr>""" % (color, color, cReplaced[color][0], cReplaced[color][1]))
+
+print("</table>")
